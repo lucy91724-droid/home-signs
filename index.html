@@ -98,7 +98,8 @@ button{font:inherit;color:inherit}
 .frag:hover .pill,.frag:focus .pill,.frag.sel .pill{opacity:1}
 .pill rect{fill:var(--dark)} .pill text{fill:#fff;font-family:"Noto Sans TC",sans-serif;font-size:30px;font-weight:700}
 .frag:focus{outline:none}
-.frag.empty{opacity:.22}
+.frag{transition:transform 1s cubic-bezier(.2,.9,.25,1.08),opacity .45s}
+.frag.empty{opacity:.13}
 .chipf{cursor:pointer;transition:opacity .6s}
 .canvas:not(.assembled) .chipf{opacity:0;pointer-events:none}
 .chipf .cb{transition:transform .3s cubic-bezier(.3,1.7,.5,1);transform-box:fill-box;transform-origin:center}
@@ -107,6 +108,8 @@ button{font:inherit;color:inherit}
 .art{transition:filter .2s}
 .L-object,.L-material,.L-light,.L-other{transition:opacity .45s ease,filter .45s ease}
 .off-object .L-object,.off-material .L-material,.off-light .L-light,.off-other .L-other{opacity:0}
+.M-object-other,.M-object-light{transition:opacity .45s ease}
+.off-object.off-other .M-object-other,.off-object.off-light .M-object-light{opacity:0}
 .off-color image{filter:grayscale(1) contrast(1.05)}
 .canvas:not(.assembled) .glowbase{opacity:0}
 .dim{opacity:0;transition:opacity .5s;pointer-events:none}
@@ -337,11 +340,11 @@ const T={
 };
 const FRAG=[
  {id:'window',zh:'窗戶',en:'Window',locs:['窗戶'],a:'window',L:'object'},
- {id:'lamp',zh:'燈',en:'Lamp',locs:['燈'],a:'lamp',L:'object'},
+ {id:'lamp',zh:'燈',en:'Lamp',locs:['燈'],a:'lamp',L:'object',also:'light'},
  {id:'study',zh:'書架與書桌',en:'Books & desk',locs:['書架','書桌','書房'],a:'study',L:'object'},
  {id:'drawer',zh:'抽屜與家具',en:'Drawers & furniture',locs:['抽屜','衣物','家具'],a:'drawer',L:'object'},
  {id:'bed',zh:'床',en:'Bed',locs:['床','臥室'],a:'bed',L:'object'},
- {id:'bath',zh:'浴室',en:'Bath',locs:['浴室'],a:'bath',L:'object'},
+ {id:'bath',zh:'浴室',en:'Bath',locs:['浴室'],a:'bath',L:'object',also:'other'},
  {id:'balcony',zh:'陽台',en:'Balcony',locs:['陽台'],a:'balcony',L:'object'},
  {id:'wall',zh:'牆面',en:'Walls',locs:['牆面'],a:'wall',L:'material'},
  {id:'photo',zh:'照片與擺件',en:'Photos & keepsakes',locs:['照片','擺件','客廳'],a:'photo',L:'object'},
@@ -351,7 +354,7 @@ const FRAG=[
  {id:'violin',zh:'樂器',en:'Instrument',locs:['樂器'],a:'violin',L:'object'},
  {id:'media',zh:'電視與音響',en:'TV & stereo',locs:['電視','音響'],a:'media',L:'object'},
  {id:'plant',zh:'植物',en:'Plants',locs:['植物'],a:'plant',L:'object'},
- {id:'fire',zh:'壁爐',en:'Hearth',locs:['壁爐'],a:'fire',L:'object'},
+ {id:'fire',zh:'壁爐',en:'Hearth',locs:['壁爐'],a:'fire',L:'object',also:'light'},
  {id:'floor',zh:'地板',en:'Floor',locs:['地板'],a:'floor',L:'material'},
  {id:'door',zh:'門口',en:'Doorway',locs:['門口'],a:'door',L:'object'},
  {id:'cup',zh:'餐櫃',en:'Cupboard',locs:['餐櫃'],a:'cup',L:'object'},
@@ -381,7 +384,7 @@ function build(){
     const o=OPEN[f.id]; const sx=o?Math.round(o[0]-(x+w/2)):0, sy=o?Math.round(o[1]-(y+h/2)):0, r=o?o[2]:0, sc=o&&o[3]?o[3]:1; const hide=o?'':'opacity:0;';
     const img=(u,cls)=>`<image class="${cls}" href="${u}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none"/>`;
     return `<g class="frag" id="f-${f.id}" data-id="${f.id}" tabindex="0" role="button" aria-label="${f.zh}" style="${hide}transform:translate(${sx}px,${sy}px) rotate(${r}deg) scale(${sc});transform-box:fill-box;transform-origin:center">
-      <g class="art">${img(A.main,'L-'+f.L)}${A.light?img(A.light,'L-light'):''}${A.other?img(A.other,'L-other'):''}</g>
+      <g class="art">${img(A.main,'Lm')}${A.light?img(A.light,'L-light'):''}${A.other?img(A.other,'L-other'):''}</g>
       <rect class="ring" x="${x-14}" y="${y-14}" width="${w+28}" height="${h+28}" rx="18"/>
       <g class="spark" style="transform-box:fill-box;transform-origin:center">${[[x-18,y-10],[x+w+16,y+6],[x+w/2,y-26],[x-8,y+h+8],[x+w+10,y+h-4]].map(([a,b],j)=>`<path d="M${a} ${b-14}L${a+4} ${b-4}L${a+14} ${b}L${a+4} ${b+4}L${a} ${b+14}L${a-4} ${b+4}L${a-14} ${b}L${a-4} ${b-4}Z" fill="${['#DD00FF','#FF5F00','#42433A','#8EBDEE','#DD00FF'][j]}"/>`).join('')}</g>
       <rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}"/>
